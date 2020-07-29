@@ -1,0 +1,29 @@
+{
+  "name": "discord-bot-v2",
+  "version": "3.0.0",
+  "description": "bot for discord using discord.js",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KylerSchmidt/Discord-bot-v2.git"
+  },
+  "author": "Kyler Schmidt",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/KylerSchmidt/Discord-bot-v2/issues"
+  },
+  "homepage": "https://github.com/KylerSchmidt/Discord-bot-v2#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "ffmpeg": "0.0.4",
+    "lodash": "^4.17.19",
+    "opusscript": "0.0.7",
+    "parse-time": "^0.1.4",
+    "superagent": "^5.3.1",
+    "urban": "^0.3.2",
+    "ytdl-core": "^3.2.0"
+  }
+}

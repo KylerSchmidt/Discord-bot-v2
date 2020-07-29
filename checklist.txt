@@ -1,0 +1,17 @@
+checklist -
+
+facts.js                        
+            - fails when text returned is too large for embeded discord msg.
+
+cats.js + dogs.js               
+            - fails and does not return to user if screwed up  
+insult.js may also need above.
+
+
+play.js
+            - clean up music bot sections of code / fix music bot
+
+administrative commands to possibly add
+!kick
+!ban
+!bulkdelete <change to administrative if people abuse>

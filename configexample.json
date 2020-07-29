@@ -1,0 +1,9 @@
+{
+    "desc": "holds all api information and token information",
+    "botPrefix": "!",
+    "discordToken": "",
+    "googleapi": "",
+    "googleSearchID": "",
+    "weatherapi": "",
+    "weatherunits": "imperial"
+}
