@@ -12,14 +12,21 @@ module.exports.help = {
 // Pulls dog picture from api randomly
 module.exports.run = async(client, message, args) => {
     let msg = await message.channel.send("Generating...");
+    let { body } = {};
+    try{
+        body = await fetch.get(api);
+    }catch(e){
+        console.log("Something very much broke.\n" + e + "\n\n");
+        msg.delete();
+        return message.channel.send("Service unavailable.");
+    }
     
-    let { body } = await fetch.get(api);
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
-    
+    console.log(body.body);
     let cEmbed = new Discord.MessageEmbed()
     .setAuthor("Dank Dog")
     .setColor("#9859B6")
-    .setImage(body.message)
+    .setImage(body.body.message)
     .setTimestamp()
     
     message.channel.send({embed: cEmbed});

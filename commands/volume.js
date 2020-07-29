@@ -17,5 +17,10 @@ module.exports.run = async (client, message, arg) => {
     content.volume = setvol;
     fs.writeFileSync(path.resolve(__dirname, '../config.json'), JSON.stringify(content, null, 2));
     message.channel.send("Volume set to " + content.volume);
-    message.channel.send("Note: currently song must be restarted.");
-    }
+    // Update current song real time.
+    const serverQueue = message.client.queue.get(message.guild.id);
+    if (!serverQueue) return console.log("serverqueue empty");
+    serverQueue.dispatcher.pause(true);
+    serverQueue.dispatcher.setVolume(setvol / 60);
+    serverQueue.dispatcher.resume();
+}
