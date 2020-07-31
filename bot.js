@@ -89,11 +89,14 @@ client.on("message", async message => {
     
     // Are there commands?
     if(!commandSend) return;
-	
+    
+    // run through any possible error messages. stored in error.js
+    // returns 1 if error. 0 if no error.
+	const errorCheck = err.errors(client, message, argsArr, commandName, commandSend, prefix);
+
     // send to file if command exists
-	if(commandSend) commandSend.run(client, message, argsArr);
-	// run through any possible error messages. stored in error.js
-	err.errors(client, message, argsArr, commandName, commandSend, prefix);
+	if(commandSend && !errorCheck) commandSend.run(client, message, argsArr);
+	
     // log who called what to console
     let log;
     if(message.channel.type !== 'text') {
@@ -101,6 +104,8 @@ client.on("message", async message => {
     } else {
         log = `${message.author.username} called - ${message.content} - ${message.guild.name}`;
     }
+    if(errorCheck)
+        log += `\n\t\t${message.author.username} called with error return`;
     console.log(log);
     arrayLog.push(log);
 });

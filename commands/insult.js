@@ -14,7 +14,15 @@ module.exports.help = {
 module.exports.run = async(client, message, args) => {
     let msg = await message.channel.send("Generating...");
     
-    let body = await fetch.get(api);
+    let { body } = {};
+    try{
+        body = await fetch.get(api);
+    }catch(e){
+        console.log("Something very much broke.\n" + e + "\n\n");
+        msg.delete();
+        return message.channel.send("Service unavailable.");
+    }
+
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
     // turns out text was the given.
     // then we must JSON parse the actual matteral we want to use.

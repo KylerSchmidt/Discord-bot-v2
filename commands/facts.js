@@ -2,7 +2,7 @@
 const color = module.require('../color.json');
 const Discord = module.require('discord.js');
 const fetch = module.require('superagent');
-const api = "https://randomuselessfact.appspot.com/random.json?language=en";
+const api = "https://uselessfacts.jsph.pl/random.json?language=en";
 
 module.exports.help = {
     name: 'facts',
@@ -14,18 +14,31 @@ module.exports.help = {
 module.exports.run = async(client, message, args) => {
     let msg = await message.channel.send("Generating...");
     
-    let { body } = await fetch.get(api);
+    let { body } = {};
+    try{
+        body = await fetch.get(api);
+    }catch(e){
+        console.log("Something very much broke.\n" + e + "\n\n");
+        msg.delete();
+        return message.channel.send("Service unavailable.");
+    }
+
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
-    var fact = body.text;
-    console.log(fact);
+    var fact = body.body.text;
+    if (fact.length >= 256)
+    {
+        message.channel.send("Fact too big, heres what it is:\n" + fact);
+    }
+    else 
+    {
     let cEmbed = new Discord.MessageEmbed()
         .setAuthor("Dank Facts")
         .setColor(color.green)
         .addField(fact, "10/10 would fact again.")
         .addField('**Link **', body.permalink)
         .setTimestamp()
-    
-    message.channel.send({embed: cEmbed});
 
+    message.channel.send({embed: cEmbed});
+    }
     msg.delete();
 }

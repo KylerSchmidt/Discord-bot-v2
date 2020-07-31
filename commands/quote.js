@@ -16,7 +16,7 @@ module.exports.run = async(client, message, args) => {
         msg.delete();
         return message.channel.send("Trouble grabbing quote. perhaps API has been called too much?");
     });
-    console.log(body);
+    // console.log(body);
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
     //if(body.error.message != null) return message.channel.send(body.error.message);
     let qod = body.contents.quotes[0];
@@ -25,7 +25,8 @@ module.exports.run = async(client, message, args) => {
         .addField('**Author**', qod.author)
         .addField('**Quote**', qod.quote)
         .addField('**Tags**', qod.tags)
-        .setFooter(body.contents.copyright)
+        .addField('**Link**', qod.permalink)
+        .setFooter(body.copyright.url)
         .setTimestamp();
     
     message.channel.send({embed: cEmbed});

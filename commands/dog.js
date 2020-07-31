@@ -22,7 +22,7 @@ module.exports.run = async(client, message, args) => {
     }
     
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
-    console.log(body.body);
+    // console.log(body.body);
     let cEmbed = new Discord.MessageEmbed()
     .setAuthor("Dank Dog")
     .setColor("#9859B6")

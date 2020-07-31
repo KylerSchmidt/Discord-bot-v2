@@ -7,6 +7,7 @@ module.exports.help = {
     aliases: ['p'],
     args: true,
     guildonly: true,
+    voiceonly: true,
     usage: '<youtube link>'
 }
 
@@ -17,14 +18,11 @@ module.exports.run = async (client, message, arg) => {
     const voiceChannel = message.member.voice.channel;
     if(!fs.existsSync('./music'))
         fs.mkdirSync('./music');
-    if (!voiceChannel) return message.channel.send('You need to be in a voice channel to play music!');
     const permissions = voiceChannel.permissionsFor(message.client.user);
     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
         return message.channel.send('I need the permissions to join and speak in your voice channel!');
     }
-    // User did not provide any form of arguements. return.
-    if (args[1] == null)
-        return 0;
+    
     // Attempt to grab information about the Youtube link. If none found assume not a youtube link or not url.
     let songInfo;
     if(args[1].toString().trim() !== "http")
