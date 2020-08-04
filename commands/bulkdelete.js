@@ -4,7 +4,8 @@ module.exports.help = {
     guildonly: true,
     aliases: ['delete', 'bd'],
     args: true,
-    usage: '<amount 1 to 50>'
+    usage: '<amount 1 to 50>',
+    cooldown: 5
 }
 
 // Deletes an amount of messages based on what is given

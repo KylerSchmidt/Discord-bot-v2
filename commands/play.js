@@ -8,6 +8,7 @@ module.exports.help = {
     args: true,
     guildonly: true,
     voiceonly: true,
+    cooldown: 5,
     usage: '<youtube link>'
 }
 
@@ -39,6 +40,9 @@ module.exports.run = async (client, message, arg) => {
         title: songInfo.videoDetails.title,
         url: songInfo.videoDetails.video_url,
     };
+
+
+
     if (!serverQueue) {
         const queueContruct = {
             textChannel: message.channel,

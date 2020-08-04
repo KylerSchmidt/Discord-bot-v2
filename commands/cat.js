@@ -17,7 +17,7 @@ module.exports.run = async(client, message, args) => {
         body = await fetch.get(api);
     // catch any problems with api in general. give user the problem.
     }catch(e){
-        console.log("Something very much broke.\n" + e + "\n\n");
+        // console.log("Something very much broke.\n" + e + "\n\n");
         msg.delete();
         return message.channel.send("Service unavailable.");
     }

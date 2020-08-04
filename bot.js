@@ -13,6 +13,8 @@ const token = config.discordToken;
 // create a discord client
 const client = new clientLink();
 client.commands = new Discord.Collection();
+// cooldowns storage.
+const cooldowns = new Discord.Collection();
 
 
 // // Http setup for sever command input
@@ -92,7 +94,7 @@ client.on("message", async message => {
     
     // run through any possible error messages. stored in error.js
     // returns 1 if error. 0 if no error.
-	const errorCheck = err.errors(client, message, argsArr, commandName, commandSend, prefix);
+	const errorCheck = err.errors(client, message, argsArr, commandName, commandSend, cooldowns, prefix);
 
     // send to file if command exists
 	if(commandSend && !errorCheck) commandSend.run(client, message, argsArr);

@@ -11,6 +11,7 @@ module.exports.help = {
     aliases: ['s'],
     todo: 'Perhaps a way to search for the next element?',
     args: true,
+    cooldown: 5,
     usage: '<what to search for>'
 }
 
