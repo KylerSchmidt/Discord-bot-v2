@@ -1,6 +1,8 @@
 const ytdl = require('ytdl-core');
+const ytpl = require('ytpl');
 const fs = require('fs');
 const path = require('path');
+
 module.exports.help = {
     name: 'play',
     description: 'Play a song from youtube. Downloaded on host machine for later use.',
@@ -17,20 +19,53 @@ module.exports.run = async (client, message, arg) => {
     const queue = message.client.queue;
     const serverQueue = message.client.queue.get(message.guild.id);
     const voiceChannel = message.member.voice.channel;
+    // Create music folder if not already existing.
     if(!fs.existsSync('./music'))
         fs.mkdirSync('./music');
+    // Must have ability to connect to channel being called.
     const permissions = voiceChannel.permissionsFor(message.client.user);
     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
         return message.channel.send('I need the permissions to join and speak in your voice channel!');
     }
     
     // Attempt to grab information about the Youtube link. If none found assume not a youtube link or not url.
-    let songInfo;
-    if(args[1].toString().trim() !== "http")
+    // console.log(args[1].toString().trim());
+    // if(args[1].toString().trim() !== "http")
+    // {
+    //     // message.channel.send("Not http");
+    //     // playlocal(message, args[1]);
+    // }
+
+    // is the link a playlist?
+    if(args[1].includes("list="))
     {
-        // message.channel.send("Not http");
-        // playlocal(message, args[1]);
+        let msgPlaylist = await message.channel.send("playlist found. attempting to add to queue...")
+        let playlistID = args[1].split('list=')[1];
+        ytpl(playlistID, async function(err, playlist) 
+        {
+            if(err)
+            {
+                msgPlaylist.delete();
+                message.channel.send("error grabbing playlist.");
+                // throw err;
+                return;
+            }
+
+            let i = 0;
+            while(i < playlist.total_items)
+            {
+                message.content = '!play ' + playlist.items[i].url_simple;
+                await module.exports.run(client, message, arg);
+
+                i++;
+            }
+            return;
+        });
     }
+    
+    
+    // Get song information details. store in structure song.
+    let songInfo;
     try {
         songInfo = await ytdl.getInfo(args[1]);
     } catch (err) {
@@ -39,10 +74,11 @@ module.exports.run = async (client, message, arg) => {
     const song = {
         title: songInfo.videoDetails.title,
         url: songInfo.videoDetails.video_url,
+        isLive: songInfo.videoDetails.isLive,
+        desc: songInfo.videoDetails.shortDescription,
     };
 
-
-
+    // If we do not have a queue setup, create one.
     if (!serverQueue) {
         const queueContruct = {
             textChannel: message.channel,
@@ -57,6 +93,7 @@ module.exports.run = async (client, message, arg) => {
 
         queueContruct.songs.push(song);
 
+        // Join voice channel. start play call.
         try {
             var connection = await voiceChannel.join();
             queueContruct.connection = connection;
@@ -66,13 +103,14 @@ module.exports.run = async (client, message, arg) => {
             queue.delete(message.guild.id);
             return message.channel.send(err);
         }
+    // we have a queue setup. push the song onto the queue and exit.
     } else {
-        
         serverQueue.songs.push(song);
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
 }
 
+// currently not in use.
 async function playlocal(message, song)
 {
     const queue = message.client.queue;
@@ -108,7 +146,7 @@ async function playlocal(message, song)
                 play(message, serverQueue.songs[0]);
                 return;
             });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 60);
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
     }
     // file does not exist locally.
     else {
@@ -117,10 +155,14 @@ async function playlocal(message, song)
 
 }
 
+// allows play to be called from external file.
 exports.plays = async function(message, song)
 {
     play(message, song);
 }
+
+// This function is called from many other submodules to allow for queue to work.
+// recursive calls itself to play through a full queue before exiting.
 async function play(message, song) {
     const queue = message.client.queue;
     const guild = message.guild;
@@ -131,9 +173,41 @@ async function play(message, song) {
     let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
     serverQueue.volume = config.volume;
 
+    // THIS IS THE ONLY PLACE THE BOT EXITS
     if (!song) {
         serverQueue.voiceChannel.leave();
         queue.delete(guild.id);
+        return;
+    }
+
+    // If song is a livestream...
+    if (song.isLive)
+    {
+        let msgLive = await message.channel.send("Live Stream Detected. Streaming...\nBe sure to call !skip or !stop to end.");
+
+        // audioonly was causing weird issues?
+        serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
+            format: 'opus',
+            highWaterMark: 1<<25,
+            liveBuffer: 40000,
+            begin: Date.now() - 200000
+        }))
+            .on('finish', () => {
+                console.log('Music ended!');
+                serverQueue.songs.shift();
+                play(message, serverQueue.songs[0]);
+            })
+            // failure to stream.
+            .on('error', error => {
+                console.error(error);
+                serverQueue.voiceChannel.leave();
+                msgLive.delete();
+                message.channel.send("failure to liveStream");
+                serverQueue.songs.shift();
+                play(message, serverQueue.songs[0]);
+            });
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+        // return so we dont run into any problems below.
         return;
     }
 
@@ -157,7 +231,7 @@ async function play(message, song) {
                 play(message, serverQueue.songs[0]);
                 return;
             });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 60);
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
     }
     // download the music if it does not exist
     else {
@@ -188,7 +262,7 @@ async function play(message, song) {
                         serverQueue.songs.shift();
                         play(message, serverQueue.songs[0]);
                     });
-                serverQueue.dispatcher.setVolume(serverQueue.volume / 60);
+                serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
             })
             // Could not find downloaded file IE did not download correctly. attempt to stream instead.
             .on('error', error => {
@@ -215,7 +289,7 @@ async function play(message, song) {
                         serverQueue.songs.shift();
                         play(message, serverQueue.songs[0]);
                     });
-                serverQueue.dispatcher.setVolume(serverQueue.volume / 60);
+                serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
             });
     }
 }

@@ -1,3 +1,4 @@
+const Discord = module.require('discord.js');
 module.exports.help = {
     name: 'nowplaying',
     description: 'check what is currently playing',
@@ -9,5 +10,16 @@ module.exports.help = {
 module.exports.run = async(client, message, args) => {
     const serverQueue = message.client.queue.get(message.guild.id);
     if (!serverQueue) return message.channel.send('There is nothing playing.');
-    return message.channel.send(`Now playing: ${serverQueue.songs[0].title}`);
+    const curSong = serverQueue.songs[0];
+
+    // if(curSong.desc.length >= 256) curSong.desc = 'About too long!';
+    let cEmbed = new Discord.MessageEmbed()
+        .setTitle("**NOW PLAYING**")
+        .setColor("RANDOM")
+        .addField('Title', curSong.title)
+        .addField('URL', curSong.url)
+        .addField('About', curSong.desc)
+        .setTimestamp()
+
+    return message.channel.send({embed: cEmbed});
 }

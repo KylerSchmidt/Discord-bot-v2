@@ -21,6 +21,6 @@ module.exports.run = async (client, message, arg) => {
     const serverQueue = message.client.queue.get(message.guild.id);
     if (!serverQueue) return console.log("serverqueue empty");
     serverQueue.dispatcher.pause(true);
-    serverQueue.dispatcher.setVolume(setvol / 60);
+    serverQueue.dispatcher.setVolume(setvol / 40);
     serverQueue.dispatcher.resume();
 }

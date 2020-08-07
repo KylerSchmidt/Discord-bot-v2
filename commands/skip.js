@@ -10,6 +10,7 @@ module.exports.help = {
 module.exports.run = async(client, message, args) => {
     const serverQueue = message.client.queue.get(message.guild.id);
     if (!serverQueue) return message.channel.send('There is no song that I could skip!');
+    serverQueue.dispatcher.destroy(); 
     serverQueue.songs.shift();
     play.plays(message, serverQueue.songs[0]);
 }
