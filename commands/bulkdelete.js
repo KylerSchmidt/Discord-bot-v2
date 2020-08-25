@@ -3,6 +3,7 @@ module.exports.help = {
     description: 'destroys a list of messages',
     guildonly: true,
     aliases: ['delete', 'bd'],
+    admin: true,
     args: true,
     usage: '<amount 1 to 50>',
     cooldown: 5
@@ -10,11 +11,8 @@ module.exports.help = {
 
 // Deletes an amount of messages based on what is given
 module.exports.run = async(client, message, args) => {
-	const amount = parseInt(args[0]) + 1;
-
-    if (!message.guild.member(message.author).hasPermission('ADMINISTRATOR'))
-        return message.reply("Admin privilages needed to run this command");
-
+    const amount = parseInt(args[0]) + 1;
+    
 	if (amount < 2 || amount > 51) {
 		return message.reply("you need to input a number between 2 and 50.");
     }

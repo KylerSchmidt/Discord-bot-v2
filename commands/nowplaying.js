@@ -12,7 +12,7 @@ module.exports.run = async(client, message, args) => {
     if (!serverQueue) return message.channel.send('There is nothing playing.');
     const curSong = serverQueue.songs[0];
 
-    // if(curSong.desc.length >= 256) curSong.desc = 'About too long!';
+    if(curSong.desc.length >= 1024) curSong.desc = curSong.desc.substring(0, 980) + '\n**Too Long of a Desc to display full!**';
     let cEmbed = new Discord.MessageEmbed()
         .setTitle("**NOW PLAYING**")
         .setColor("RANDOM")

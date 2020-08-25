@@ -2,6 +2,8 @@ const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const fs = require('fs');
 const path = require('path');
+const { ServerResponse } = require('http');
+var songfdtitle;
 
 module.exports.help = {
     name: 'play',
@@ -52,13 +54,18 @@ module.exports.run = async (client, message, arg) => {
             }
 
             let i = 0;
+            msgPlaylist.delete()
+            let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.total_items + " items. adding to queue. This may take a while.")
+            console.log(playlist.total_items);
             while(i < playlist.total_items)
             {
-                message.content = '!play ' + playlist.items[i].url_simple;
+                message.content = 'playlist ' + playlist.items[i].url_simple;
                 await module.exports.run(client, message, arg);
 
                 i++;
             }
+            msgPlaylistadding.delete();
+            message.channel.send("Playlist added to queue!");
             return;
         });
     }
@@ -71,6 +78,7 @@ module.exports.run = async (client, message, arg) => {
     } catch (err) {
         return message.channel.send("Not a valid URL or could not find the URL");
     }
+
     const song = {
         title: songInfo.videoDetails.title,
         url: songInfo.videoDetails.video_url,
@@ -88,6 +96,8 @@ module.exports.run = async (client, message, arg) => {
             volume: null,
             playing: true,
             dispatcher: null,
+            paused: false,
+            repeat: false,
         };
         queue.set(message.guild.id, queueContruct);
 
@@ -106,35 +116,51 @@ module.exports.run = async (client, message, arg) => {
     // we have a queue setup. push the song onto the queue and exit.
     } else {
         serverQueue.songs.push(song);
+        if(args[0].includes('playlist'))
+            return;
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
 }
 
-// currently not in use.
-async function playlocal(message, song)
+// Play Youtube livestream
+// Called in Play() function
+async function playLiveStream(message, song, serverQueue)
 {
-    const queue = message.client.queue;
-    const guild = message.guild;
-    const serverQueue = queue.get(message.guild.id);
-
-    // change volume
-    // update config file.
-    let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
-    serverQueue.volume = config.volume;
-
-    if (!song) {
-        serverQueue.voiceChannel.leave();
-        queue.delete(guild.id);
-        return;
-    }
-
-    if (fs.existsSync('./music/' + song + '.mp3')) {
-        console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
-        let msgFound = await message.channel.send("File found on server. Playing now at " + serverQueue.volume + " volume.");
-        serverQueue.dispatcher  = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
+    let msgLive = await message.channel.send("Live Stream Detected. Streaming...\nBe sure to call !skip or !stop to end.");
+        // audioonly was causing weird issues?
+        serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
+            format: 'opus',
+            highWaterMark: 1<<25,
+            liveBuffer: 40000,
+            begin: Date.now() - 200000
+        }))
             .on('finish', () => {
                 console.log('Music ended!');
+                if(!serverQueue.repeat) serverQueue.songs.shift();
+                play(message, serverQueue.songs[0]);
+            })
+            // failure to stream.
+            .on('error', error => {
+                console.error(error);
+                serverQueue.voiceChannel.leave();
+                msgLive.delete();
+                message.channel.send("failure to liveStream");
                 serverQueue.songs.shift();
+                play(message, serverQueue.songs[0]);
+            });
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+}
+
+//Play local file found in ./music
+// Called in Play() function
+async function playLocalFile(message, song, serverQueue)
+{
+    console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
+        let msgFound = await message.channel.send("File found on server. Playing now at " + serverQueue.volume + " volume.");
+        serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
+            .on('finish', () => {
+                console.log('Music ended!');
+                if(!serverQueue.repeat) serverQueue.songs.shift();
                 play(message, serverQueue.songs[0]);
             })
             .on('error', error => {
@@ -147,15 +173,10 @@ async function playlocal(message, song)
                 return;
             });
         serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
-    }
-    // file does not exist locally.
-    else {
-        message.channel.send("Could not find the file locally.");
-    }
-
 }
 
-// allows play to be called from external file.
+// external calls to play
+// used in skip.js
 exports.plays = async function(message, song)
 {
     play(message, song);
@@ -170,10 +191,11 @@ async function play(message, song) {
 
     // change volume
     // update config file.
+    // eslint-disable-next-line no-undef
     let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
     serverQueue.volume = config.volume;
 
-    // THIS IS THE ONLY PLACE THE BOT EXITS
+    // THIS IS THE ONLY PLACE THE BOT EXITS PLAYING
     if (!song) {
         serverQueue.voiceChannel.leave();
         queue.delete(guild.id);
@@ -183,56 +205,16 @@ async function play(message, song) {
     // If song is a livestream...
     if (song.isLive)
     {
-        let msgLive = await message.channel.send("Live Stream Detected. Streaming...\nBe sure to call !skip or !stop to end.");
-
-        // audioonly was causing weird issues?
-        serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
-            format: 'opus',
-            highWaterMark: 1<<25,
-            liveBuffer: 40000,
-            begin: Date.now() - 200000
-        }))
-            .on('finish', () => {
-                console.log('Music ended!');
-                serverQueue.songs.shift();
-                play(message, serverQueue.songs[0]);
-            })
-            // failure to stream.
-            .on('error', error => {
-                console.error(error);
-                serverQueue.voiceChannel.leave();
-                msgLive.delete();
-                message.channel.send("failure to liveStream");
-                serverQueue.songs.shift();
-                play(message, serverQueue.songs[0]);
-            });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
-        // return so we dont run into any problems below.
+        playLiveStream(message, song, serverQueue);
         return;
     }
 
-    var songfdtitle = song.title.substring(0, 30);
+    songfdtitle = song.title.substring(0, 30);
     // does the file already exist in the music folder?
     if (fs.existsSync('./music/' + songfdtitle + '.mp3')) {
-        console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
-        let msgFound = await message.channel.send("File found on server. Playing now at " + serverQueue.volume + " volume.");
-        serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
-            .on('finish', () => {
-                console.log('Music ended!');
-                serverQueue.songs.shift();
-                play(message, serverQueue.songs[0]);
-            })
-            .on('error', error => {
-                console.error(error);
-                serverQueue.voiceChannel.leave();
-                msgFound.delete();
-                message.channel.send("Error playing sound file found on local directory.");
-                serverQueue.songs.shift();
-                play(message, serverQueue.songs[0]);
-                return;
-            });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+        playLocalFile(message, song, serverQueue);
     }
+    
     // download the music if it does not exist
     else {
         console.log("Downloading...");
@@ -250,7 +232,7 @@ async function play(message, song) {
                 serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
                     .on('finish', () => {
                         console.log('Music ended!');
-                        serverQueue.songs.shift();
+                        if(!serverQueue.repeat) serverQueue.songs.shift();
                         play(message, serverQueue.songs[0]);
                     })
                     // Failure to download
@@ -271,13 +253,14 @@ async function play(message, song) {
                 message.channel.send("Failure Downloading. Lets try streaming directly.");
                 
                 serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
+                    format: 'opus',
                     filter: "audioonly",
                     highWaterMark: 1<<25,
                     quality: "highestaudio"
                 }))
                     .on('finish', () => {
                         console.log('Music ended!');
-                        serverQueue.songs.shift();
+                        if(!serverQueue.repeat) serverQueue.songs.shift();
                         play(message, serverQueue.songs[0]);
                     })
                     // Yikes. Couldn't stream the song either. Could it be region locked?

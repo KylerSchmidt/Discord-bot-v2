@@ -27,5 +27,8 @@
     "urban": "^0.3.2",
     "ytdl-core": "^3.2.0",
     "ytpl": "^0.2.4"
+  },
+  "devDependencies": {
+    "eslint-config-google": "^0.14.0"
   }
 }

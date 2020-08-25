@@ -11,7 +11,7 @@ module.exports.help = {
 }
 module.exports.run = async (client, message, arg) => {
     const setvol = parseInt(arg[0]);    
-    if(setvol < 1 || setvol > 10)
+    if(setvol < 1 || setvol > 20)
         return message.reply("you need to input a number between 1 and 10.");
     let content = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
     content.volume = setvol;

@@ -3,7 +3,15 @@ const Discord = require("discord.js");
 // IE - Server only. Wrong arguements. etc.
 // RETURN 1 FOR ERROR. RETURN 0 FOR NO ERROR.
 exports.errors = function(client, message, argsArr, commandName, commandHelp, cooldowns, prefix) {
-    //Cooldown errors
+    // Admin error
+    if(commandHelp.help.admin && !message.guild.member(message.author).hasPermission('ADMINISTRATOR'))
+    {
+        message.reply("Admin privilages needed to run this command");
+        return 1;
+    }
+        
+    
+    // Cooldown errors
     if (commandHelp.help.cooldown != null)
     {
         // If cooldown not created for command, create it.
