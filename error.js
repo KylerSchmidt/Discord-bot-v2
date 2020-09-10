@@ -9,7 +9,7 @@ exports.errors = function(client, message, argsArr, commandName, commandHelp, co
         message.reply("Admin privilages needed to run this command");
         return 1;
     }
-        
+    
     
     // Cooldown errors
     if (commandHelp.help.cooldown != null)

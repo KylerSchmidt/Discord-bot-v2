@@ -11,7 +11,7 @@ module.exports.help = {
 }
 module.exports.run = async (client, message, arg) => {
     const setvol = parseInt(arg[0]);    
-    if(setvol < 1 || setvol > 20)
+    if(setvol < 1 || setvol > 10)
         return message.reply("you need to input a number between 1 and 10.");
     let content = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
     content.volume = setvol;
@@ -19,7 +19,7 @@ module.exports.run = async (client, message, arg) => {
     message.channel.send("Volume set to " + content.volume);
     // Update current song real time.
     const serverQueue = message.client.queue.get(message.guild.id);
-    if (!serverQueue) return console.log("serverqueue empty");
+    if (!serverQueue) return;
     serverQueue.dispatcher.pause(true);
     serverQueue.dispatcher.setVolume(setvol / 40);
     serverQueue.dispatcher.resume();

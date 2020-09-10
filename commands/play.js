@@ -2,7 +2,6 @@ const ytdl = require('ytdl-core');
 const ytpl = require('ytpl');
 const fs = require('fs');
 const path = require('path');
-const { ServerResponse } = require('http');
 var songfdtitle;
 
 module.exports.help = {
@@ -17,7 +16,8 @@ module.exports.help = {
 }
 
 module.exports.run = async (client, message, arg) => {
-    const args = message.content.split(' ');
+    var args = message.content.split(' ');
+    args = args.slice(1, args.length);
     const queue = message.client.queue;
     const serverQueue = message.client.queue.get(message.guild.id);
     const voiceChannel = message.member.voice.channel;
@@ -30,19 +30,14 @@ module.exports.run = async (client, message, arg) => {
         return message.channel.send('I need the permissions to join and speak in your voice channel!');
     }
     
-    // Attempt to grab information about the Youtube link. If none found assume not a youtube link or not url.
-    // console.log(args[1].toString().trim());
-    // if(args[1].toString().trim() !== "http")
-    // {
-    //     // message.channel.send("Not http");
-    //     // playlocal(message, args[1]);
-    // }
-
     // is the link a playlist?
-    if(args[1].includes("list="))
+    if(args[0].includes("list="))
     {
         let msgPlaylist = await message.channel.send("playlist found. attempting to add to queue...")
-        let playlistID = args[1].split('list=')[1];
+        // ytpl takes in only the info after the list= (listID)
+        let playlistID = args[0].split('list=')[1];
+
+        // use ytpl to grab each url of the playlist
         ytpl(playlistID, async function(err, playlist) 
         {
             if(err)
@@ -57,11 +52,11 @@ module.exports.run = async (client, message, arg) => {
             msgPlaylist.delete()
             let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.total_items + " items. adding to queue. This may take a while.")
             console.log(playlist.total_items);
+            // Loop through recursively grabbing each YT video
             while(i < playlist.total_items)
             {
                 message.content = 'playlist ' + playlist.items[i].url_simple;
                 await module.exports.run(client, message, arg);
-
                 i++;
             }
             msgPlaylistadding.delete();
@@ -73,18 +68,34 @@ module.exports.run = async (client, message, arg) => {
     
     // Get song information details. store in structure song.
     let songInfo;
+    let song;
     try {
-        songInfo = await ytdl.getInfo(args[1]);
+        songInfo = await ytdl.getInfo(args[0]);
+        song = {
+            title: songInfo.videoDetails.title,
+            url: songInfo.videoDetails.video_url,
+            isLive: songInfo.videoDetails.isLive,
+            desc: songInfo.videoDetails.shortDescription,
+            time: songInfo.videoDetails.lengthSeconds,
+        };
     } catch (err) {
-        return message.channel.send("Not a valid URL or could not find the URL");
+        // Attempt to grab information about the Youtube link. If none found assume not a youtube link or not url.
+        if(!args[0].includes("http"))
+        {
+            song = {
+                title: args.join(' '),
+                url: ' ',
+                isLive: false,
+                desc: ' ',
+            }
+        }
+        else
+        {
+            return message.channel.send("Failure to getInfo on youtube link.")
+        }
     }
 
-    const song = {
-        title: songInfo.videoDetails.title,
-        url: songInfo.videoDetails.video_url,
-        isLive: songInfo.videoDetails.isLive,
-        desc: songInfo.videoDetails.shortDescription,
-    };
+    
 
     // If we do not have a queue setup, create one.
     if (!serverQueue) {
@@ -98,6 +109,7 @@ module.exports.run = async (client, message, arg) => {
             dispatcher: null,
             paused: false,
             repeat: false,
+            stayInChat: false,
         };
         queue.set(message.guild.id, queueContruct);
 
@@ -113,13 +125,20 @@ module.exports.run = async (client, message, arg) => {
             queue.delete(message.guild.id);
             return message.channel.send(err);
         }
-    // we have a queue setup. push the song onto the queue and exit.
+    // we have a queue setup. push the song onto the queue
+    // exit for the main thread running play() to run later.
     } else {
         serverQueue.songs.push(song);
         if(args[0].includes('playlist'))
             return;
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
+}
+
+// Deletes a msg sent to discord chat after 3 seconds.
+function deleteMsg(msg)
+{
+    setTimeout(function() { msg.delete(); }, 3000);
 }
 
 // Play Youtube livestream
@@ -155,11 +174,12 @@ async function playLiveStream(message, song, serverQueue)
 // Called in Play() function
 async function playLocalFile(message, song, serverQueue)
 {
-    console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
+    // console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
         let msgFound = await message.channel.send("File found on server. Playing now at " + serverQueue.volume + " volume.");
+        await deleteMsg(msgFound);
         serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
             .on('finish', () => {
-                console.log('Music ended!');
+                // console.log('Music ended!');
                 if(!serverQueue.repeat) serverQueue.songs.shift();
                 play(message, serverQueue.songs[0]);
             })
@@ -173,6 +193,35 @@ async function playLocalFile(message, song, serverQueue)
                 return;
             });
         serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+}
+
+// Stream a song directly from YT
+// Called in Play() function
+async function playYTStream(message, song, serverQueue)
+{
+    let msgDownloadFail = await message.channel.send("Failure Downloading. Lets try streaming directly.");
+    await deleteMsg(msgDownloadFail);
+    serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
+        format: 'opus',
+        filter: "audioonly",
+        highWaterMark: 1<<25,
+        quality: "highestaudio"
+    }))
+        .on('finish', () => {
+            console.log('Music ended!');
+            if(!serverQueue.repeat) serverQueue.songs.shift();
+            play(message, serverQueue.songs[0]);
+        })
+        // Yikes. Couldn't stream the song either. Could it be region locked?
+        .on('error', error => {
+            console.error(error);
+            serverQueue.voiceChannel.leave();
+            
+            message.channel.send("Failure to Download nor Stream. Could there be restrictions on " + songfdtitle + "?");
+            serverQueue.songs.shift();
+            play(message, serverQueue.songs[0]);
+        });
+    serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
 }
 
 // external calls to play
@@ -191,16 +240,21 @@ async function play(message, song) {
 
     // change volume
     // update config file.
-    // eslint-disable-next-line no-undef
     let config = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));
-    serverQueue.volume = config.volume;
+    var stayInChat = config.stayInChat;
 
-    // THIS IS THE ONLY PLACE THE BOT EXITS PLAYING
-    if (!song) {
-        serverQueue.voiceChannel.leave();
+    // THIS IS THE ONLY PLACE THE BOT EXITS PLAYING WITH NO NEW ASYNC CALLS
+    if (typeof(song) == 'undefined') {
+        serverQueue.dispatcher.pause(true);
+        if(!stayInChat)
+        {
+            serverQueue.voiceChannel.leave();
+        }
         queue.delete(guild.id);
         return;
     }
+
+    serverQueue.volume = config.volume;
 
     // If song is a livestream...
     if (song.isLive)
@@ -209,15 +263,56 @@ async function play(message, song) {
         return;
     }
 
-    songfdtitle = song.title.substring(0, 30);
+    songfdtitle = song.title.substring(0, 60);
+    if(songfdtitle.length > 58)
+    {
+        songfdtitle = songfdtitle.split(' ')
+        songfdtitle = songfdtitle.slice(0, songfdtitle.length - 1)
+        songfdtitle = songfdtitle.join(' ');
+    } 
+    // OUTDATED
+    // const hasCompleteWord = (str, word) =>
+    //     str.replace(/[-..,\/#!$%\^&\*;:{}=\-_`'"~()]/g,"").split(/\s+/).includes(word.replace(/[-.,\/#!$%\^&\*;:{}=\-_`'"~()]/g,""));
+
+    // our method for filtering out words. /\s+/g will get rid of extra spaces. the first replace makes sure only simple english letters are searched for.
+    const hasCompleteWord = (str, word) =>
+        str.replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ').includes(word.replace(/[^\w\s]/gi,"").replace(/\s+/g, " "));
+    // if no url was given and saved, it is not a yt link and we can search
+    // local files directly for anything close to a saved .mp3
+    if (song.url == ' ')
+    {
+        var files = fs.readdirSync('./music');
+        for(var i = 0; i < files.length; i++)
+        {
+            // filter .mp3 off the end of the file. hopefully no song saved has .mp3 in the name?
+            files[i] = files[i].split(".mp3")[0]
+
+            // console.log(files[i].replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ') + ' ------------- ' + songfdtitle + ' ------------- ' + hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
+            if(hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
+            {
+                songfdtitle = files[i];
+                song.title = songfdtitle;
+                playLocalFile(message, song, serverQueue);
+                return;
+            }
+        }
+        message.channel.send("No local file found.")
+        serverQueue.songs.shift();
+        play(message, serverQueue.songs[0]);
+        return;
+    }
     // does the file already exist in the music folder?
     if (fs.existsSync('./music/' + songfdtitle + '.mp3')) {
         playLocalFile(message, song, serverQueue);
     }
-    
     // download the music if it does not exist
     else {
-        console.log("Downloading...");
+        // Dont want to download something longer than 10 min long.
+        if(song.time > 600)
+        {
+            message.channel.send('Song is longer than 10 min. cannot download. Streaming directly.');
+            playYTStream(message, song, serverQueue);
+        }
         let msgDownloading = await message.channel.send("Downloading " + songfdtitle);
         ytdl(song.url, {
             filter: "audioonly",
@@ -226,53 +321,15 @@ async function play(message, song) {
         }).pipe(fs.createWriteStream('./music/' + songfdtitle + '.mp3'))
             // Finished downloading the song.
             .on('finish', () => {
-                console.log("Downloaded!");
+                // console.log("Downloaded!");
                 msgDownloading.delete();
-                message.channel.send("Downloaded! Playing now at " + serverQueue.volume + " volume.");
-                serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
-                    .on('finish', () => {
-                        console.log('Music ended!');
-                        if(!serverQueue.repeat) serverQueue.songs.shift();
-                        play(message, serverQueue.songs[0]);
-                    })
-                    // Failure to download
-                    .on('error', error => {
-                        console.error(error + "\nCould not find the audio file. Download failure.");
-                        serverQueue.voiceChannel.leave();
-                        msgDownloading.delete();
-                        message.channel.send("Could not find audio file. Download failure?");
-                        serverQueue.songs.shift();
-                        play(message, serverQueue.songs[0]);
-                    });
-                serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+                playLocalFile(message, song, serverQueue);
             })
             // Could not find downloaded file IE did not download correctly. attempt to stream instead.
             .on('error', error => {
                 console.error(error + "\nMust be a failure to download. Bot will attempt to stream");
                 msgDownloading.delete();
-                message.channel.send("Failure Downloading. Lets try streaming directly.");
-                
-                serverQueue.dispatcher = serverQueue.connection.play(ytdl(song.url, {
-                    format: 'opus',
-                    filter: "audioonly",
-                    highWaterMark: 1<<25,
-                    quality: "highestaudio"
-                }))
-                    .on('finish', () => {
-                        console.log('Music ended!');
-                        if(!serverQueue.repeat) serverQueue.songs.shift();
-                        play(message, serverQueue.songs[0]);
-                    })
-                    // Yikes. Couldn't stream the song either. Could it be region locked?
-                    .on('error', error => {
-                        console.error(error);
-                        serverQueue.voiceChannel.leave();
-                        
-                        message.channel.send("Failure to Download nor Stream. Could there be restrictions on " + songfdtitle + "?");
-                        serverQueue.songs.shift();
-                        play(message, serverQueue.songs[0]);
-                    });
-                serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+                playYTStream(message, song, serverQueue);
             });
     }
 }

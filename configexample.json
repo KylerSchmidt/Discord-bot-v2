@@ -5,5 +5,7 @@
     "googleapi": "",
     "googleSearchID": "",
     "weatherapi": "",
-    "weatherunits": "imperial"
+    "weatherunits": "imperial",
+    "volume": 5,
+    "stayInChat": false
 }
