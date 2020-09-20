@@ -37,32 +37,37 @@ module.exports.run = async(client, message, args) => {
         //     });
     }
     const name = args[0].toLowerCase();
-    //console.log(commands);
     const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
     // could not find the command asked for
     if (!command) {
         return message.reply('that\'s not a valid command!');
     }
-    
-    //push information about the given command from the files modules.exports.help
-    data.push(`**Name:** ${command.help.name}\n`);
-    if (command.help.aliases) data.push(`**Aliases:** ${command.help.aliases.join(' ')}\n`);
-    if (command.help.description) data.push(`**Description:** ${command.help.description}\n`);
-    if (command.help.usage) data.push(`**Usage:** ${botPrefix}${command.help.name} ${command.help.usage}\n`);
-    if (command.help.guildonly) {
-        command.help.guildonly = 'nope';
-        data.push(`**Can I DM this command?:** ${command.help.guildonly}\n`);
-    }
-    if (command.help.cooldown) data.push(`**Cooldown:** ${command.help.cooldown || 3} second(s)\n`);
-    if (command.help.todo) data.push(`**TODO:** ${command.help.todo}\n`);
-    // data = JSON.stringify(data).replace(/,/g, '');
-    // data = JSON.parse(data);
-    // let cEmbed = new Discord.MessageEmbed()
-    //         .setColor("RANDOM")
-    //         .addField(`${data}`,"Discord bot help desk")
-    //         .setTimestamp()
-    // message.channel.send({embed: cEmbed, split: true });
 
-    message.channel.send(data, { split: true });
+    let Description = command.help.description
+    let Aliases = command.help.aliases
+    let Useage = command.help.usage
+    let Guildonly = command.help.guildonly
+    let CooldownTimer = command.help.cooldown
+    let Todo = command.help.todo
+    
+    if(typeof(Description) == 'undefined') Description = 'no Description';
+    if(typeof(Aliases) == 'undefined') Aliases = 'no Aliases';
+    if(typeof(Useage) == 'undefined') Useage =''; 
+    if(typeof(Guildonly) == 'undefined') Guildonly = 'Not Specified';
+    else if(Guildonly) Guildonly = 'Yes'; else Guildonly = 'No';
+    if(typeof(CooldownTimer) == 'undefined') CooldownTimer = 'no cooldown';
+    if(typeof(Todo) == 'undefined') Todo = 'no current todo list';
+    
+    let cEmbed = new Discord.MessageEmbed()
+            .setAuthor(command.help.name)
+            .setColor("RANDOM")
+            .addField('Description:', Description)
+            .addField('Aliases:', Aliases)
+            .addField('Usage:', `${botPrefix}${command.help.name} ${Useage}`)
+            .addField('Guildonly?:', Guildonly)
+            .addField('CooldownTimer:', CooldownTimer)
+            .addField('TODO:', Todo)
+            .setTimestamp()
+    message.channel.send({embed: cEmbed, split: true });
 }
 

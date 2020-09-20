@@ -29,9 +29,9 @@ module.exports.run = async(client, message, args) => {
     var insult = body.text;
     var obj = JSON.parse(insult);
     let cEmbed = new Discord.MessageEmbed()
-        .setAuthor("Dank Insult")
+        // .setAuthor("Dank Insult")
         .setColor(color.green)
-        .addField(obj.insult, "You got Rekt")
+        .addField("=====================", obj.insult)
         // .addField('**Link **', body.permalink)
         .setTimestamp()
     

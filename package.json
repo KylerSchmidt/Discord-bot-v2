@@ -18,15 +18,15 @@
   "homepage": "https://github.com/KylerSchmidt/Discord-bot-v2#readme",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
-    "discord.js": "^12.2.0",
+    "discord.js": "^12.3.1",
     "ffmpeg": "0.0.4",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "opusscript": "0.0.7",
     "parse-time": "^0.1.4",
-    "superagent": "^5.3.1",
+    "superagent": "^6.1.0",
     "urban": "^0.3.2",
-    "ytdl-core": "^3.2.0",
-    "ytpl": "^0.2.4"
+    "ytdl-core": "^3.2.2",
+    "ytpl": "^1.0.1"
   },
   "devDependencies": {
     "eslint-config-google": "^0.14.0"

@@ -27,7 +27,6 @@ exports.errors = function(client, message, argsArr, commandName, commandHelp, co
         // If it was the person who sent the command earlier...
         if (timestamps.has(message.author.id)) {
             const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-            console.log(expirationTime);
             // Check if the user can use command
             if (now < expirationTime) {
                 const timeLeft = (expirationTime - now) / 1000;

@@ -11,6 +11,5 @@ module.exports.run = async(client, message, args) => {
     if(typeof(serverQueue) == 'undefined')
         return;
     serverQueue.songs = [];
-    console.log(serverQueue.songs[0]);
     play.plays(message, serverQueue.songs[0]);
 }

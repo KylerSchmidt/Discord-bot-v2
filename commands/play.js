@@ -37,32 +37,31 @@ module.exports.run = async (client, message, arg) => {
         // ytpl takes in only the info after the list= (listID)
         let playlistID = args[0].split('list=')[1];
 
-        // use ytpl to grab each url of the playlist
-        ytpl(playlistID, async function(err, playlist) 
-        {
-            if(err)
+        ytpl(args[0])
+            .then(async playlist =>
+            {
+                let i = 0;
+                msgPlaylist.delete()
+                let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.total_items + " items. adding to queue. This may take a while.")
+                // Loop through recursively grabbing each YT video
+                while(i < playlist.total_items)
+                {
+                    message.content = 'playlist ' + playlist.items[i].url_simple;
+                    await module.exports.run(client, message, arg);
+                    i++;
+                }
+                msgPlaylistadding.delete();
+                message.channel.send("Playlist added to queue!");
+                return;
+            })
+            .catch(err => 
             {
                 msgPlaylist.delete();
                 message.channel.send("error grabbing playlist.");
                 // throw err;
                 return;
-            }
-
-            let i = 0;
-            msgPlaylist.delete()
-            let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.total_items + " items. adding to queue. This may take a while.")
-            console.log(playlist.total_items);
-            // Loop through recursively grabbing each YT video
-            while(i < playlist.total_items)
-            {
-                message.content = 'playlist ' + playlist.items[i].url_simple;
-                await module.exports.run(client, message, arg);
-                i++;
-            }
-            msgPlaylistadding.delete();
-            message.channel.send("Playlist added to queue!");
-            return;
-        });
+            })
+        return;
     }
     
     
@@ -79,14 +78,33 @@ module.exports.run = async (client, message, arg) => {
             time: songInfo.videoDetails.lengthSeconds,
         };
     } catch (err) {
-        // Attempt to grab information about the Youtube link. If none found assume not a youtube link or not url.
         if(!args[0].includes("http"))
         {
-            song = {
+            song = 
+            {
                 title: args.join(' '),
                 url: ' ',
                 isLive: false,
                 desc: ' ',
+            }
+            // check if the local song exists before adding to queue
+            const hasCompleteWord = (str, word) =>
+                str.replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ').includes(word.replace(/[^\w\s]/gi,"").replace(/\s+/g, " "));
+            var files = fs.readdirSync('./music');
+            var fileexists = false;
+            for(var i = 0; i < files.length; i++)
+            {
+                files[i] = files[i].split(".mp3")[0]
+                if(hasCompleteWord(files[i].toLowerCase(), song.title.toLowerCase()))
+                {
+                    song.title = files[i];
+                    fileexists = true;
+                }
+            }
+            if(!fileexists)
+            {
+                message.channel.send("No local file found on server.")
+                return;
             }
         }
         else
@@ -129,7 +147,7 @@ module.exports.run = async (client, message, arg) => {
     // exit for the main thread running play() to run later.
     } else {
         serverQueue.songs.push(song);
-        if(args[0].includes('playlist'))
+        if(message.content.includes('playlist'))
             return;
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
@@ -167,19 +185,17 @@ async function playLiveStream(message, song, serverQueue)
                 serverQueue.songs.shift();
                 play(message, serverQueue.songs[0]);
             });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 180);
 }
 
 //Play local file found in ./music
 // Called in Play() function
 async function playLocalFile(message, song, serverQueue)
 {
-    // console.log("file found on server. playing now at " + serverQueue.volume + " volume.");
         let msgFound = await message.channel.send("File found on server. Playing now at " + serverQueue.volume + " volume.");
         await deleteMsg(msgFound);
         serverQueue.dispatcher = serverQueue.connection.play(fs.createReadStream('./music/' + songfdtitle + '.mp3'))
             .on('finish', () => {
-                // console.log('Music ended!');
                 if(!serverQueue.repeat) serverQueue.songs.shift();
                 play(message, serverQueue.songs[0]);
             })
@@ -192,7 +208,7 @@ async function playLocalFile(message, song, serverQueue)
                 play(message, serverQueue.songs[0]);
                 return;
             });
-        serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+        serverQueue.dispatcher.setVolume(serverQueue.volume / 180);
 }
 
 // Stream a song directly from YT
@@ -221,11 +237,11 @@ async function playYTStream(message, song, serverQueue)
             serverQueue.songs.shift();
             play(message, serverQueue.songs[0]);
         });
-    serverQueue.dispatcher.setVolume(serverQueue.volume / 40);
+    serverQueue.dispatcher.setVolume(serverQueue.volume / 180);
 }
 
 // external calls to play
-// used in skip.js
+// used in skip.js, stop.js
 exports.plays = async function(message, song)
 {
     play(message, song);
@@ -245,10 +261,18 @@ async function play(message, song) {
 
     // THIS IS THE ONLY PLACE THE BOT EXITS PLAYING WITH NO NEW ASYNC CALLS
     if (typeof(song) == 'undefined') {
-        serverQueue.dispatcher.pause(true);
         if(!stayInChat)
         {
             serverQueue.voiceChannel.leave();
+        }
+        else
+        {
+            // Dispatcher will not exist if we did not find a file or error.
+            // This means we dont need to worry about pausing anyways. 
+            try
+            { serverQueue.dispatcher.pause(true); }  
+            catch 
+            { }
         }
         queue.delete(guild.id);
         return;
@@ -275,31 +299,35 @@ async function play(message, song) {
     //     str.replace(/[-..,\/#!$%\^&\*;:{}=\-_`'"~()]/g,"").split(/\s+/).includes(word.replace(/[-.,\/#!$%\^&\*;:{}=\-_`'"~()]/g,""));
 
     // our method for filtering out words. /\s+/g will get rid of extra spaces. the first replace makes sure only simple english letters are searched for.
-    const hasCompleteWord = (str, word) =>
-        str.replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ').includes(word.replace(/[^\w\s]/gi,"").replace(/\s+/g, " "));
+    // const hasCompleteWord = (str, word) =>
+    //     str.replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ').includes(word.replace(/[^\w\s]/gi,"").replace(/\s+/g, " "));
     // if no url was given and saved, it is not a yt link and we can search
     // local files directly for anything close to a saved .mp3
     if (song.url == ' ')
     {
-        var files = fs.readdirSync('./music');
-        for(var i = 0; i < files.length; i++)
-        {
-            // filter .mp3 off the end of the file. hopefully no song saved has .mp3 in the name?
-            files[i] = files[i].split(".mp3")[0]
 
-            // console.log(files[i].replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ') + ' ------------- ' + songfdtitle + ' ------------- ' + hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
-            if(hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
-            {
-                songfdtitle = files[i];
-                song.title = songfdtitle;
-                playLocalFile(message, song, serverQueue);
-                return;
-            }
-        }
-        message.channel.send("No local file found.")
-        serverQueue.songs.shift();
-        play(message, serverQueue.songs[0]);
+        playLocalFile(message, song, serverQueue);
         return;
+
+        // var files = fs.readdirSync('./music');
+        // for(var i = 0; i < files.length; i++)
+        // {
+        //     // filter .mp3 off the end of the file. hopefully no song saved has .mp3 in the name?
+        //     files[i] = files[i].split(".mp3")[0]
+
+        //     // console.log(files[i].replace(/[^\w\s]/gi,"").replace(/\s+/g, " ").split(/\s+/).join(' ') + ' ------------- ' + songfdtitle + ' ------------- ' + hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
+        //     if(hasCompleteWord(files[i].toLowerCase(), songfdtitle.toLowerCase()))
+        //     {
+        //         songfdtitle = files[i];
+        //         song.title = songfdtitle;
+        //         playLocalFile(message, song, serverQueue);
+        //         return;
+        //     }
+        // }
+        // message.channel.send("No local file found.")
+        // serverQueue.songs.shift();
+        // play(message, serverQueue.songs[0]);
+        // return;
     }
     // does the file already exist in the music folder?
     if (fs.existsSync('./music/' + songfdtitle + '.mp3')) {

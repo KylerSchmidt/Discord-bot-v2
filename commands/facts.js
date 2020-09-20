@@ -22,9 +22,9 @@ module.exports.run = async(client, message, args) => {
         msg.delete();
         return message.channel.send("Service unavailable.");
     }
-
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
     var fact = body.body.text;
+    var permalink = body.body.permalink;
     if (fact.length >= 256)
     {
         message.channel.send("Fact too big, heres what it is:\n" + fact);
@@ -32,10 +32,10 @@ module.exports.run = async(client, message, args) => {
     else 
     {
     let cEmbed = new Discord.MessageEmbed()
-        .setAuthor("Dank Facts")
+        // .setAuthor("Dank Facts")
         .setColor(color.green)
-        .addField(fact, "10/10 would fact again.")
-        .addField('**Link **', body.permalink)
+        .addField("Dank Facts", fact)
+        .addField('**Link **', permalink)
         .setTimestamp()
 
     message.channel.send({embed: cEmbed});

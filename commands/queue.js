@@ -14,20 +14,20 @@ module.exports.run = async(client, message, args) => {
     var list = '';
     for(songPlace in serverQueue.songs)
     {
-        
+        console.log('i got in here');
         list += '\n' + songPlace + ": " + serverQueue.songs[songPlace].title + "\n" + serverQueue.songs[songPlace].url;
         if (serverQueue.songs[songPlace].isLive)
             list += "\n**Note: song above is live **";
         list += "\n\n"
         songPlace++;
-        if (songPlace > 10)
+        if (songPlace > 8)
         {
             list += '\n' + 'Plus many more! too large to display them all!';
             break;
         }
             
     }
-
+    console.log(list.length);
     if(list.length < 1024)
     {
         let cEmbed = new Discord.MessageEmbed()
@@ -37,7 +37,10 @@ module.exports.run = async(client, message, args) => {
     
         return message.channel.send({embed: cEmbed});
     }
+    // else
+    // {
+        
+    //     return message.channel.send("Queue very large. Heres it all in plaintext.\n" + list);
+    // }
     
-
-    // message.channel.send("Queue very large. Heres it all in plaintext.\n" + list);
 }
