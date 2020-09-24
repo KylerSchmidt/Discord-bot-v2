@@ -1,5 +1,3 @@
-This is a test.
-
 This text file explains how to launch and configure the bot
 
 node.js is needed to launch this bot. https://nodejs.org/
