@@ -36,8 +36,9 @@ module.exports.run = async(client, message, args) => {
         //         message.reply('it seems like I can\'t DM you! Do you have DMs disabled?');
         //     });
     }
+    
     const name = args[0].toLowerCase();
-    const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
+    const command = commands.get(name) || commands.find(c => c.help.aliases && c.help.aliases.includes(name));
     // could not find the command asked for
     if (!command) {
         return message.reply('that\'s not a valid command!');

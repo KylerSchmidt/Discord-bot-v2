@@ -103,13 +103,13 @@ module.exports.run = async (client, message, arg) => {
             }
             if(!fileexists)
             {
-                message.channel.send("No local file found on server.")
+                message.channel.send("No local file found on server.");
                 return;
             }
         }
         else
         {
-            return message.channel.send("Failure to getInfo on youtube link.")
+            return message.channel.send("Failure to getInfo on youtube link for " + args[0] + ".");
         }
     }
 

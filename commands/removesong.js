@@ -26,7 +26,7 @@ module.exports.run = async(client, message, args) => {
         {
             var removedsong = serverQueue.songs[i].title;
             serverQueue.songs.splice(i, 1);
-            return message.channel.send(removedsong + 'has been removed from the queue!');
+            return message.channel.send(removedsong + ' has been removed from the queue!');
         }
     }
     message.channel.send('Song not found in the queue');
