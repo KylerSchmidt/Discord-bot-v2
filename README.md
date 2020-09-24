@@ -10,12 +10,10 @@ node.js is needed to launch this bot. https://nodejs.org/
 
 ### SETUP VIA CONFIG.JSON
 
-### rename configexample.json to config.json or create config.json
-
 ### an incomplete config.json will keep certain commands from functioning
 ### or bot functioning at all:
 
-desc            - general description of config.json.
+desc                      - general description of config.json.
 
 botPrefix(required)       - prefix to communicate with bot in server.
 
@@ -47,4 +45,3 @@ node bot.js
 or click on scripts runNoCMD.vbs, run.bat or run.sh
 
 the bot should output all commands as they are loaded in. Bot should join server.
-
