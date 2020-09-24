@@ -10,19 +10,16 @@ node.js is needed to launch this bot. https://nodejs.org/
 
 ### SETUP VIA CONFIG.JSON
 
-### an incomplete config.json will keep certain commands from functioning
-### or bot functioning at all:
+### Config.json needs:
+botPrefix       - prefix to communicate with bot in server.
 
-desc                      - general description of config.json.
-
-botPrefix(required)       - prefix to communicate with bot in server.
-
-discordToken(required)    - token to connect up to discord with server.
+discordToken    - token to connect up to discord with server.
 
 This can be retreaved at https://discordapp.com/developers/applications/
     
 This is a good tutorial https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot
     
+### Config.json could use:
 googleapi       - https://console.developers.google.com free API can be retreaved here.
 
 googleSearchID  - https://cse.google.com/cse/all ID can be created here. custom searches can be created.
