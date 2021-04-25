@@ -10,7 +10,8 @@ module.exports.help = {
     description: 'find out the weather in your area',
     aliases: ['wz'],
     args: true,
-    usage: '<City Zip Code>'
+    usage: '<City Zip Code>',
+    cooldown: 3
 }
 
 // Pulls information about the weather from api

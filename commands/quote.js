@@ -6,7 +6,8 @@ const api = "https://quotes.rest/qod.json";
 module.exports.help = {
     name: 'quote',
     description: 'Pulls quote of the day',
-    aliases: ['qod']
+    aliases: ['qod'],
+    cooldown: 3
 }
 
 // Pulls a random quote from above api.

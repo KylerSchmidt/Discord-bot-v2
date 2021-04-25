@@ -6,7 +6,8 @@ const api = "https://meme-api.herokuapp.com/gimme";
 module.exports.help = {
     name: 'memes',
     description: 'Dank bruh',
-    aliases: ['m']
+    aliases: ['m'],
+    cooldown: 2
 }
 
 // gets a random meme from above api that draws from reddit

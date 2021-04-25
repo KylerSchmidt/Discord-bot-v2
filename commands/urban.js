@@ -8,7 +8,8 @@ module.exports.help = {
     description: 'urbanDictionary! Woooooooooo!',
     aliases: ['u'],
     args: true,
-    usage: '<search>'
+    usage: '<search>',
+    cooldown: 3
 }
 
 // Pull information from urban dictionary 

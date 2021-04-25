@@ -5,7 +5,8 @@ const Discord = module.require("discord.js");
 module.exports.help = {
     name: "userinfo",
     aliases: ['ui'],
-    description: "displays users basic information"
+    description: "displays users basic information",
+    cooldown: 3
 }
 
 // Display userinformation

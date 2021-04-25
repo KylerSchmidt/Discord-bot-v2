@@ -5,7 +5,8 @@ module.exports.help = {
     name: 'checkvol',
     description: 'Check Volume for !play function.',
     aliases: ['cv'],
-    guildonly: true
+    guildonly: true,
+    cooldown: 3
 }
 module.exports.run = async (client, message, arg) => {   
     let content = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../config.json'), 'utf8'));

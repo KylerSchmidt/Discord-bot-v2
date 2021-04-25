@@ -6,7 +6,8 @@ module.exports.help = {
     usage: '<song name>',
     args: true,
     voiceonly: true,
-    guildonly: true
+    guildonly: true,
+    cooldown: 3
 }
 
 module.exports.run = async(client, message, args) => {

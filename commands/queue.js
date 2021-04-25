@@ -5,6 +5,7 @@ module.exports.help = {
     aliases: ['q'],
     usage: '<page number>',
     voiceonly: true,
+    cooldown: 5,
     guildonly: true
 }
 

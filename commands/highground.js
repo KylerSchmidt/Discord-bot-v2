@@ -1,7 +1,8 @@
 module.exports.help = {
     name: 'highground',
     aliases: ['hg'],
-    description: 'The highground. Only for masters.'
+    description: 'The highground. Only for masters.',
+    cooldown: 3
 }
 
 // Displays picture of obi-wan :)

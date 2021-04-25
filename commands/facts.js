@@ -7,7 +7,8 @@ const api = "https://uselessfacts.jsph.pl/random.json?language=en";
 module.exports.help = {
     name: 'facts',
     description: 'get a random fact from the internet. Useful? idk... maybe...',
-    aliases: ['f']
+    aliases: ['f'],
+    cooldown: 3
 }
 
 // Pulls a random fact from above api 

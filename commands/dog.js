@@ -6,7 +6,8 @@ const api = "http://dog.ceo/api/breeds/image/random";
 module.exports.help = {
     name: 'dog',
     description: 'Woof!',
-    aliases: ['d']
+    aliases: ['d'],
+    cooldown: 2
 }
  
 // Pulls dog picture from api randomly

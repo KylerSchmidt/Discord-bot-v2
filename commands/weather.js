@@ -11,7 +11,8 @@ module.exports.help = {
     todo: 'add more information in general',
     aliases: ['w'],
     args: true,
-    usage: '<City Name>'
+    usage: '<City Name>',
+    cooldown: 3
 }
 
 // Pulls information about the weather from api

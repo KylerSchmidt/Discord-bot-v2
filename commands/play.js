@@ -11,7 +11,7 @@ module.exports.help = {
     args: true,
     guildonly: true,
     voiceonly: true,
-    cooldown: 5,
+    cooldown: 3,
     usage: '<youtube link>'
 }
 
@@ -42,11 +42,11 @@ module.exports.run = async (client, message, arg) => {
             {
                 let i = 0;
                 msgPlaylist.delete()
-                let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.total_items + " items. adding to queue. This may take a while.")
+                let msgPlaylistadding = await message.channel.send("Playlist contains " + playlist.estimatedItemCount + " items. adding to queue. This may take a while.")
                 // Loop through recursively grabbing each YT video
-                while(i < playlist.total_items)
+                while(i < playlist.estimatedItemCount)
                 {
-                    message.content = 'playlist ' + playlist.items[i].url_simple;
+                    message.content = 'playlist ' + playlist.items[i].shortUrl;
                     await module.exports.run(client, message, arg);
                     i++;
                 }
@@ -74,7 +74,7 @@ module.exports.run = async (client, message, arg) => {
             title: songInfo.videoDetails.title,
             url: songInfo.videoDetails.video_url,
             isLive: songInfo.videoDetails.isLive,
-            desc: songInfo.videoDetails.shortDescription,
+            desc: songInfo.videoDetails.Description,
             time: songInfo.videoDetails.lengthSeconds,
         };
     } catch (err) {
@@ -109,7 +109,9 @@ module.exports.run = async (client, message, arg) => {
         }
         else
         {
-            return message.channel.send("Failure to getInfo on youtube link for " + args[0] + ".");
+            let linkNotFound = await message.channel.send("Failure to get " + args[0] + ".");
+            await deleteMsg(linkNotFound, 8);
+            return;
         }
     }
 
@@ -157,6 +159,11 @@ module.exports.run = async (client, message, arg) => {
 function deleteMsg(msg)
 {
     setTimeout(function() { msg.delete(); }, 3000);
+}
+
+function deleteMsg(msg, sec)
+{
+    setTimeout(function() { msg.delete(); }, sec * 1000);
 }
 
 // Play Youtube livestream
@@ -340,6 +347,7 @@ async function play(message, song) {
         {
             message.channel.send('Song is longer than 10 min. cannot download. Streaming directly.');
             playYTStream(message, song, serverQueue);
+            return;
         }
         let msgDownloading = await message.channel.send("Downloading " + songfdtitle);
         ytdl(song.url, {

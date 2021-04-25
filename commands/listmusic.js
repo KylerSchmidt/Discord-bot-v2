@@ -7,7 +7,7 @@ module.exports.help = {
     name: 'listmusic',
     description: 'list local music on bots file',
     aliases: ['lm'],
-    cooldown: 2,
+    cooldown: 5,
     usage: '<a-z> or <startwith - sw> <a-z>'
 }
 
@@ -77,7 +77,8 @@ module.exports.run = async (client, message, arg) => {
     if(Object.keys(cleanedFiles).length == 0)
         return message.channel.send("no results.")
 
-    message.channel.send("Check DM's for list");
+    if(message.channel.type !== 'dm')
+        message.channel.send("Check DM's for list");
 
     // loop for all elements in object cleanedFiles. add to list.
     for(var key in cleanedFiles)

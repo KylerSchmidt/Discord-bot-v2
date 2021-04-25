@@ -1,7 +1,8 @@
 module.exports.help = {
     name: 'avatar',
     aliases: ['icon', 'pfp'],
-    description: 'shows image of user'
+    description: 'shows image of user',
+    cooldown: 3
 }
 
 module.exports.run = async (client, message, args) => {

@@ -4,7 +4,8 @@ const Discord = module.require("discord.js");
 module.exports.help = {
     name: 'server',
     description: 'Gives general server information',
-    guildonly: true
+    guildonly: true,
+    cooldown: 3
 }
 
 // Displays server information

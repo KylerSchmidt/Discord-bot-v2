@@ -5,7 +5,9 @@ const Discord = require("discord.js");
 // Struct. for client saved in client.js
 const clientLink = require('./client.js');
 // http server creation
-const http = require('http');
+// const http = require('http');
+const express = require('express');
+var app = express();
 let arrayLog = [];
 // Definitions from config.json
 const prefix = config.botPrefix;
@@ -17,17 +19,20 @@ client.commands = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 
 
-// // Http setup for sever command input
-// const serverHttp = http.createServer(function (req, res) {
-//     if(req.url === '/') {
-//         res.write('Discord Bot v2');
-//         for(let i = 0; i < arrayLog.length; i++)
-//         {
-//             res.write('\n' + arrayLog[i]);
-//         }
-//         res.end();
-//     }
-// }).listen(8080);
+//Webserver creation
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(express.static('views'));
+
+app.get('/', function (req, res) 
+{
+    res.render("client");
+});
+
+app.listen(8080, function()
+{
+    console.log('Http server running on localhost:8080');
+})
 
 
 //Initalize file service. read through folder commands and grab.

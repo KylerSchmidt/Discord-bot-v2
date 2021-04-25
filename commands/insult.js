@@ -7,7 +7,8 @@ const api = "https://evilinsult.com/generate_insult.php?lang=en&type=json";
 module.exports.help = {
     name: 'insult',
     aliases: ['i'],
-    description: 'Yeah? well ur a.... fuk.'
+    description: 'Yeah? well ur a.... fuk.',
+    cooldown: 3
 }
 
 // generates a random insult based off of api

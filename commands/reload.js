@@ -4,7 +4,8 @@ module.exports.help = {
     aliases: ['reboot', 'restartbot', 'rb'],
     admin: true,
     args: true,
-    usage: '<command>'
+    usage: '<command>',
+    cooldown: 3
 }
 
 module.exports.run = async(client, message, args) => {

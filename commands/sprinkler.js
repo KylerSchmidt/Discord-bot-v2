@@ -1,6 +1,7 @@
 module.exports.help = {
     name: 'sprinkler',
-    description: 'MEH SPRINKLER GOES'
+    description: 'MEH SPRINKLER GOES',
+    cooldown: 5
 }
 
 // bot goes yeet

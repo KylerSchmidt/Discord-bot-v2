@@ -4,7 +4,8 @@ module.exports.help = {
     name: 'restart',
     description: 'restart the current song',
     guildonly: true,
-    aliases: ['re']
+    aliases: ['re'],
+    cooldown: 3
 }
 
 // Skip youtube video to next in queue

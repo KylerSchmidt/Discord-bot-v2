@@ -1,7 +1,8 @@
 module.exports.help = {
     name: 'pause',
     description: 'Toggle pause music from !play',
-    guildonly: true
+    guildonly: true,
+    cooldown: 5
 }
 module.exports.run = async (client, message, args) => {
     // Update current song real time.

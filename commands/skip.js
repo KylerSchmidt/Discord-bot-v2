@@ -3,7 +3,8 @@ module.exports.help = {
     name: 'skip',
     description: 'Skip song in playlist of songs added via !play',
     voiceonly: true,
-    guildonly: true
+    guildonly: true,
+    cooldown: 2
 }
 
 // Skip youtube video to next in queue

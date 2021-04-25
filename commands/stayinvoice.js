@@ -7,7 +7,8 @@ module.exports.help = {
     description: 'Keeps bot in the voice channel',
     aliases: ['siv'],
     guildonly: true,
-    usage: '<0-1> or <true-false>. Toggleable.'
+    usage: '<0-1> or <true-false>. Toggleable.',
+    cooldown: 3
 }
 
 module.exports.run = async (client, message, arg) => {

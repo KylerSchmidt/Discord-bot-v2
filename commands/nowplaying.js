@@ -3,7 +3,8 @@ module.exports.help = {
     name: 'nowplaying',
     description: 'check what is currently playing',
     guildonly: true,
-    aliases: ['np']
+    aliases: ['np'],
+    cooldown: 3
 }
 
 // Skip youtube video to next in queue
@@ -18,7 +19,10 @@ module.exports.run = async(client, message, args) => {
         url = 'no url';
         desc = 'no desc';
     }
-    if(curSong.desc.length >= 1024) curSong.desc = curSong.desc.substring(0, 980) + '\n**Too Long of a Desc to display full!**';
+    if(typeof desc === 'undefined') desc = 'no desc';
+    console.log(desc.length);
+    if(desc.length >= 1000) desc = desc.substring(0, 900) + '\n**Too Long of a Desc to display full!**';
+    // console.log(curSong.desc.length);
     let cEmbed = new Discord.MessageEmbed()
         .setTitle("**NOW PLAYING**")
         .setColor("RANDOM")

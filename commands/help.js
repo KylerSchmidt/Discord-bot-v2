@@ -6,7 +6,8 @@ module.exports.help = {
     name: 'help',
     description: 'List all other commands or learn more about a command',
     aliases: ['commands'],
-    usage: '[command name]'
+    usage: '[command name]',
+    cooldown: 3
 }
 
 //gives help for entire database. 

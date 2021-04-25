@@ -3,12 +3,24 @@ const Discord = require("discord.js");
 // IE - Server only. Wrong arguements. etc.
 // RETURN 1 FOR ERROR. RETURN 0 FOR NO ERROR.
 exports.errors = function(client, message, argsArr, commandName, commandHelp, cooldowns, prefix) {
-    // Admin error
-    if(commandHelp.help.admin && !message.guild.member(message.author).hasPermission('ADMINISTRATOR'))
+    
+    // GuildOnly Error 
+    if(commandHelp.help.guildonly && message.channel.type !== 'text') 
     {
-        message.reply("Admin privilages needed to run this command");
+        message.reply(`${commandHelp.help.name} cannot be executed in DMs!`);
         return 1;
     }
+    
+    // Admin error
+    if(message.channel.type !== 'dm')
+    {
+        if(commandHelp.help.admin && !message.guild.member(message.author).hasPermission('ADMINISTRATOR'))
+        {
+            message.reply("Admin privilages needed to run this command");
+            return 1;
+        }
+    }
+        
     
     
     // Cooldown errors
@@ -37,15 +49,6 @@ exports.errors = function(client, message, argsArr, commandName, commandHelp, co
         // setup timestamp, or delete if time is out.
         timestamps.set(message.author.id, now);
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-    }
-    
-    
-    
-    // GuildOnly Error 
-    if(commandHelp.help.guildonly && message.channel.type !== 'text') 
-    {
-        message.reply(`${commandHelp.help.name} cannot be executed in DMs!`);
-        return 1;
     }
 
     // VoiceOnly Error

@@ -6,7 +6,8 @@ const api = "http://aws.random.cat/meow";
 module.exports.help = {
     name: 'cat',
     description: 'Meow!',
-    aliases: ['c']
+    aliases: ['c'],
+    cooldown: 2
 }
 
 // Pulls cat picture from above api randomly
