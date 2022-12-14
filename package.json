@@ -20,7 +20,7 @@
     "@discordjs/opus": "^0.3.3",
     "discord.js": "^12.5.1",
     "ejs": "^3.1.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ffmpeg": "0.0.4",
     "lodash": "^4.17.20",
     "opusscript": "0.0.7",
