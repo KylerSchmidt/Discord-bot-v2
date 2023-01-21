@@ -34,6 +34,10 @@ weatherunits    -
 ```
 
 # Running the Program
+dependencies will need to be downloaded. This can be done with:
+```
+npm install
+```
 when all of the above is completed, can be lauched from terminal/console:
 ```
 node bot.js

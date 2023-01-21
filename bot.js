@@ -10,7 +10,6 @@ let arrayLog = [];
 // Definitions from config.json
 const prefix = config.botPrefix;
 const token = config.discordToken;
-const clientId = config.clientId;
 // create a discord client
 const client = new clientLink();
 client.commands = new Discord.Collection();
