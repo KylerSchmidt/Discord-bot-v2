@@ -16,9 +16,9 @@ module.exports.help = {
 module.exports.run = async (client, message, args) => {
     let msg = await message.channel.send("Generating...");
 
-    await fetch.get(api).then(function (body) {
-
-
+    await fetch.get(api).then(function (getter) {
+        let body = getter.body;
+        console.log(body);
         if (!{ body }) return message.channel.send("Something broke. Try again.");
         if (body.postLink <= 0) body.postLink = ["missing link"];
         if (body.subreddit <= 0) body.subreddit = ["missing subreddit"];

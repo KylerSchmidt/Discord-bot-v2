@@ -19,6 +19,8 @@ module.exports.run = async (client, message, arg) => {
     fs.writeFileSync(path.resolve(__dirname, '../config.json'), JSON.stringify(content, null, 2));
     // Write volume into distube
     const queue = client.distube.getQueue(message);
-    queue.setVolume(volume);
+    if (queue) {
+        queue.setVolume(volume);
+    }
     message.channel.send(`${client.emotes.success} | Volume set to \`${volume}\``);
 }
