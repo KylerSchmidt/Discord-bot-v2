@@ -1,4 +1,3 @@
-const play = require('./play.js');
 module.exports.help = {
     name: 'stop',
     description: 'Destroys queue created from !play',
@@ -8,9 +7,7 @@ module.exports.help = {
 }
 
 module.exports.run = async(client, message, args) => {
-    const serverQueue = message.client.queue.get(message.guild.id);
-    if(typeof(serverQueue) == 'undefined')
-        return;
-    serverQueue.songs = [];
-    play.plays(message, serverQueue.songs[0]);
+    const queue = client.distube.getQueue(message);
+    queue.stop();
+    message.channel.send(`${client.emotes.success} | Stopped!`);
 }

@@ -1,3 +1,4 @@
+const Discord = module.require('discord.js');
 module.exports.help = {
     name: 'avatar',
     aliases: ['icon', 'pfp'],
