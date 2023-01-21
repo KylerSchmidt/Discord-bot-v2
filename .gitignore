@@ -2,3 +2,4 @@ config.json
 node_modules
 commands/Nonfunctional-Comebackto
 slashDeploy.js
+package-lock.json
