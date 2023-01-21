@@ -20,13 +20,22 @@ module.exports.run = async(client, message, args) => {
         data.push(commands.map(command => command.help.name).join('\n'));
         //push for information at bottom
         data.push(`\nYou can send \'${botPrefix}help [command name]\' to get specific info`);
-        let cEmbed = new Discord.EmbedBuilder()
-            .setColor("Random")
-            .addFields({name: "Commands:", value: data.toString()})
-            .setTimestamp()
-        return message.channel.send({embeds: [cEmbed]});
 
-        // return message.channel.send("Commands - \n" + data);
+        let cEmbed = new Discord.MessageEmbed()
+            .setColor("RANDOM")
+            .addField("Commands:", data)
+            .setTimestamp()
+        return message.channel.send({embed: cEmbed});
+        // used to send to direct meesage instead of in channel.
+        // return message.author.send(data, { split: true })
+        //     .then(() => {
+        //         if (message.channel.type === 'dm') return;
+        //         message.reply('I\'ve sent you a DM with all my commands!');
+        //     })
+        //     .catch(error => {
+        //         console.error(`Could not send help DM to ${message.author.tag}.\n`, error);
+        //         message.reply('it seems like I can\'t DM you! Do you have DMs disabled?');
+        //     });
     }
     
     const name = args[0].toLowerCase();
@@ -37,12 +46,10 @@ module.exports.run = async(client, message, args) => {
     }
 
     let Description = command.help.description
-    if(typeof(command.help.aliases) != 'undefined'){
-        let Aliases = command.help.aliases.toString()
-    }
+    let Aliases = command.help.aliases
     let Useage = command.help.usage
     let Guildonly = command.help.guildonly
-    let CooldownTimer = command.help.cooldown.toString()
+    let CooldownTimer = command.help.cooldown
     let Todo = command.help.todo
     
     if(typeof(Description) == 'undefined') Description = 'no Description';
@@ -53,23 +60,16 @@ module.exports.run = async(client, message, args) => {
     if(typeof(CooldownTimer) == 'undefined') CooldownTimer = 'no cooldown';
     if(typeof(Todo) == 'undefined') Todo = 'no current todo list';
     
-    let cEmbed = new Discord.EmbedBuilder()
-            .setAuthor({name: command.help.name})
-            .setColor("Random")
-            .addFields(
-                {name: 'Description:', value: Description},
-                {name: 'Aliases:', value: Aliases},
-                {name: 'Usage:', value: `${botPrefix}${command.help.name} ${Useage}`},
-                {name: 'Guildonly?:', value: Guildonly},
-                {name: 'CooldownTimer:', value: CooldownTimer},
-                {name: 'TODO:', value: Todo},
-                )
-            // .addField('Aliases:', Aliases)
-            // .addField('Usage:', `${botPrefix}${command.help.name} ${Useage}`)
-            // .addField('Guildonly?:', Guildonly)
-            // .addField('CooldownTimer:', CooldownTimer)
-            // .addField('TODO:', Todo)
+    let cEmbed = new Discord.MessageEmbed()
+            .setAuthor(command.help.name)
+            .setColor("RANDOM")
+            .addField('Description:', Description)
+            .addField('Aliases:', Aliases)
+            .addField('Usage:', `${botPrefix}${command.help.name} ${Useage}`)
+            .addField('Guildonly?:', Guildonly)
+            .addField('CooldownTimer:', CooldownTimer)
+            .addField('TODO:', Todo)
             .setTimestamp()
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed, split: true });
 }
 

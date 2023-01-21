@@ -32,16 +32,14 @@ module.exports.run = async(client, message, args) => {
     }
     else 
     {
-    let cEmbed = new Discord.EmbedBuilder()
-        // .setAuthor({name: "Dank Facts"})
+    let cEmbed = new Discord.MessageEmbed()
+        // .setAuthor("Dank Facts")
         .setColor(color.green)
-        .addFields(
-            {name: "Dank Facts", value: fact.toString()},
-            {name: '**Link **', value: permalink}, 
-            )
+        .addField("Dank Facts", fact)
+        .addField('**Link **', permalink)
         .setTimestamp()
 
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed});
     }
     msg.delete();
 }

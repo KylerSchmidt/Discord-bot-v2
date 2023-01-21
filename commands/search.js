@@ -35,18 +35,14 @@ module.exports.run = async(client, message, args) => {
         return message.channel.send('something broke or no results found');
     } 
     if(body.items[1]['title'] <= 0) body.items[1]['title'] = ['no title'];
-    let cEmbed = new Discord.EmbedBuilder()
+    let cEmbed = new Discord.MessageEmbed()
         .setColor(color.green)
-        .addFields(
-            {name: '**', value: body.items[1]['title']},
-            {name:'**Link **', value: body.items[1]['link'] },
-            {name: '**Description: **', value: body.items[1]['snippet']}
-            )
-        // .addField('**Link **', body.items[1]['link'])
-        // .addField('**Description: **', body.items[1]['snippet'])
+        .addField('**', body.items[1]['title'])
+        .addField('**Link **', body.items[1]['link'])
+        .addField('**Description: **', body.items[1]['snippet'])
         .setTimestamp()
     
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed});
 
     msg.delete();
 }

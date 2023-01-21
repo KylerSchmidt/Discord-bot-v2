@@ -29,14 +29,14 @@ module.exports.run = async(client, message, args) => {
     // then we must JSON parse the actual matteral we want to use.
     var insult = body.text;
     var obj = JSON.parse(insult);
-    let cEmbed = new Discord.EmbedBuilder()
+    let cEmbed = new Discord.MessageEmbed()
         // .setAuthor("Dank Insult")
         .setColor(color.green)
-        .addFields({name: "=====================", value: obj.insult})
+        .addField("=====================", obj.insult)
         // .addField('**Link **', body.permalink)
         .setTimestamp()
     
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed});
 
     msg.delete();
 }

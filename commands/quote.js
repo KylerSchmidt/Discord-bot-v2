@@ -21,18 +21,16 @@ module.exports.run = async(client, message, args) => {
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
     //if(body.error.message != null) return message.channel.send(body.error.message);
     let qod = body.contents.quotes[0];
-    let cEmbed = new Discord.EmbedBuilder()
-        .setColor("Random")
-        .addFields(
-            {name: '**Author**', value: qod.author},
-            {name: '**Quote**', value: qod.quote},
-            {name: '**Tags**', value: qod.tags.toString()},
-            {name: '**Link**', value: qod.permalink},
-            )
-        .setFooter({text: body.copyright.url})
+    let cEmbed = new Discord.MessageEmbed()
+        .setColor("RANDOM")
+        .addField('**Author**', qod.author)
+        .addField('**Quote**', qod.quote)
+        .addField('**Tags**', qod.tags)
+        .addField('**Link**', qod.permalink)
+        .setFooter(body.copyright.url)
         .setTimestamp();
     
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed});
 
     msg.delete();
 }

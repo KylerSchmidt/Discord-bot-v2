@@ -1,4 +1,3 @@
-const Discord = module.require('discord.js');
 module.exports.help = {
     name: 'bulkdelete',
     description: 'destroys a list of messages',

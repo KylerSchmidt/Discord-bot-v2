@@ -15,30 +15,25 @@ module.exports.run = async (client, message, args) => {
     let uEmbed;
     // If user not specified, asume it is on themselves
     if(!message.mentions.users.size) {
-        uEmbed = new Discord.EmbedBuilder()
-            .setThumbnail(message.author.displayAvatarURL())
-            .setAuthor({name: `${message.author.username} Info`, iconURL: message.author.displayAvatarURL()})
+        uEmbed = new Discord.MessageEmbed()
+            .setThumbnail(message.author.displayAvatarURL)
+            .setAuthor(`${message.author.username} Info`, message.author.displayAvatarURL)
             .setColor(color.lime)
-            .addFields(
-                {name: "**ID: **", value: message.author.id.toString()},
-                {name: "**Created At: **", value: message.author.createdAt.toString()},
-                )
-            // .addField("**Created At: **", message.author.createdAt)
-            .setFooter({text: "Discordbot v2.5", iconURL: client.user.displayAvatarURL()});
+            .addField("**ID: **", message.author.id)
+            .addField("**Created At: **", message.author.createdAt)
+            .setFooter("Discordbot v2.5", client.user.displayAvatarURL);
     } else {
         const avatarList = message.mentions.users.map(user => {
-            uEmbed = new Discord.EmbedBuilder()
-                .setThumbnail(user.displayAvatarURL())
-                .setAuthor({name: `${user.username} Info`, iconURL: user.displayAvatarURL()})
+            uEmbed = new Discord.MessageEmbed()
+                .setThumbnail(user.displayAvatarURL)
+                .setAuthor(`${user.username} Info`, user.displayAvatarURL)
                 .setColor(color.lime)
-                .addFields(
-                    {name: "**ID: **", value: user.id.toString()},
-                    {name: "**Created At: **", value: user.createdAt.toString()},
-                    )
-                .setFooter({text: "Discordbot v2.5", iconURL: user.displayAvatarURL()});
+                .addField("**ID: **", user.id)
+                .addField("**Created At: **", user.createdAt)
+                .setFooter("Discordbot v2.5", user.displayAvatarURL);
         });
     }
-    await message.channel.send({embeds: [uEmbed]});
+    await message.channel.send({embed: uEmbed});
     msg.delete();
 }
 

@@ -24,13 +24,13 @@ module.exports.run = async(client, message, args) => {
     
     if(!{ body} ) return message.channel.send("Something broke. Try again.");
     // console.log(body.body);
-    let cEmbed = new Discord.EmbedBuilder()
-    .setAuthor({name: "Dank Dog"})
+    let cEmbed = new Discord.MessageEmbed()
+    .setAuthor("Dank Dog")
     .setColor("#9859B6")
     .setImage(body.body.message)
     .setTimestamp()
     
-    message.channel.send({embeds: [cEmbed]});
+    message.channel.send({embed: cEmbed});
 
     msg.delete();
 }

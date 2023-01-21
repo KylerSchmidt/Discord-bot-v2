@@ -5,18 +5,16 @@ const Discord = require("discord.js");
 exports.errors = function(client, message, argsArr, commandName, commandHelp, cooldowns, prefix) {
     
     // GuildOnly Error 
-    // channel.type - https://discord-api-types.dev/api/discord-api-types-v10/enum/ChannelType
-    if(commandHelp.help.guildonly && message.channel.type !== 0) 
+    if(commandHelp.help.guildonly && message.channel.type !== 'text') 
     {
         message.reply(`${commandHelp.help.name} cannot be executed in DMs!`);
         return 1;
     }
     
     // Admin error
-    if(message.channel.type !== 1)
+    if(message.channel.type !== 'dm')
     {
-        // !message.guild.member(message.author).hasPermission('ADMINISTRATOR')
-        if(commandHelp.help.admin && !message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))
+        if(commandHelp.help.admin && !message.guild.member(message.author).hasPermission('ADMINISTRATOR'))
         {
             message.reply("Admin privilages needed to run this command");
             return 1;
@@ -54,9 +52,6 @@ exports.errors = function(client, message, argsArr, commandName, commandHelp, co
     }
 
     // VoiceOnly Error
-    // var Target = message.member(message.mentions.users.first() || message.guild.members.fetch(argsArr[0]))
-    // var GuildMember = message.guild.members.cache.get(Target.user.id)
-    
     if(commandHelp.help.voiceonly && !message.member.voice.channel)
     {
         message.reply(`${commandHelp.help.name} cannot be executed without being in a voice channel!`);

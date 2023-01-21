@@ -5,11 +5,18 @@ module.exports.help = {
     cooldown: 5
 }
 module.exports.run = async (client, message, args) => {
-    const queue = client.distube.getQueue(message)
-    if (!queue) return message.channel.send(`${client.emotes.error} | There is nothing in the queue right now!`)
-    if (queue.paused) {
-      queue.resume()
-      return message.channel.send('Resumed the song for you :)')
+    // Update current song real time.
+    const serverQueue = message.client.queue.get(message.guild.id);
+    if (!serverQueue) return console.log("serverqueue empty");
+    if(serverQueue.paused)  
+    {
+        serverQueue.dispatcher.resume();
+        serverQueue.paused = false;
     }
-    queue.pause()
+    else 
+    {
+        serverQueue.dispatcher.pause();
+        serverQueue.paused = true;
+    }                   
+        
 }
