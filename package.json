@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/KylerSchmidt/Discord-bot-v2#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
+    "@discordjs/opus": "^0.8.0",
     "discord.js": "^12.5.1",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
