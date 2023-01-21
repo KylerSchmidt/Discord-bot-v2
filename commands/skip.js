@@ -1,4 +1,3 @@
-const play = require('./play.js');
 module.exports.help = {
     name: 'skip',
     description: 'Skip song in playlist of songs added via !play',
@@ -7,24 +6,13 @@ module.exports.help = {
     cooldown: 2
 }
 
-// Skip youtube video to next in queue
 module.exports.run = async(client, message, args) => {
-    const serverQueue = message.client.queue.get(message.guild.id);
-    var setvol = 0;
-    if (!serverQueue) return message.channel.send('There is no song that I could skip!');
-    if(args.length)
-    {
-        setvol = parseInt(args[0]) - 1;
+    const queue = client.distube.getQueue(message)
+    if (!queue) return message.channel.send(`${client.emotes.error} | There is nothing in the queue right now!`)
+    try {
+      const song = await queue.skip()
+      message.channel.send(`${client.emotes.success} | Skipped! Now playing:\n${song.name}`)
+    } catch (e) {
+      message.channel.send(`${client.emotes.error} | ${e}`)
     }
-
-    for (var i = 0; i <= setvol; i++)
-    {
-        if(Object.keys(serverQueue.songs).length)
-            serverQueue.songs.shift();
-        else
-            break;
-    }
-    serverQueue.dispatcher.destroy(); 
-    
-    play.plays(message, serverQueue.songs[0]);
 }

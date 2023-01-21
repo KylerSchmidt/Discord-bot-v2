@@ -11,15 +11,18 @@ module.exports.help = {
 // Displays server information
 module.exports.run = async(client, message, args) => {
     // build general information about server bot is running on.
-    let sEmbed = new Discord.MessageEmbed()
+    let owner = await message.guild.fetchOwner();
+    let sEmbed = new Discord.EmbedBuilder()
     .setColor(color.yellow)
     .setTitle("Server Info")
-    .setThumbnail(message.guild.iconURL)
-    .setAuthor(`${message.guild.name} Info`, message.guild.iconURL)
-    .addField("**Guild Name: **", `${message.guild.name}`, true)
-    .addField("**Guild Owner: **", `${message.guild.owner}`, true)
-    .addField("**Member Count: **", `${message.guild.memberCount}`, true)
-    .setFooter("Discordbot v2.5", client.user.displayAvatarURL);
-    message.channel.send({embed: sEmbed});
+    .setThumbnail(message.guild.iconURL())
+    .setAuthor({name: `${message.guild.name} Info`, iconURL: message.guild.iconURL()})
+    .addFields(
+        {name: "**Guild Name: **", value: `${message.guild.name}`, inline: true},
+        {name: "**Guild Owner: **", value: `${owner.user.username}`, inline: true},
+        {name: "**Member Count: **", value: `${message.guild.memberCount}`, inline: true}
+    )
+    .setFooter({text: "Discordbot v2.5", iconURL: client.user.displayAvatarURL()});
+    message.channel.send({embeds: [sEmbed]});
 }
 

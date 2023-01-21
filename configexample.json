@@ -2,6 +2,7 @@
     "desc": "holds all api information and token information",
     "botPrefix": "!",
     "discordToken": "",
+    "clientID": "",
     "googleapi": "",
     "googleSearchID": "",
     "weatherapi": "",

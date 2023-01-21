@@ -1,6 +1,6 @@
 module.exports.help = {
-    name: 'pause',
-    description: 'Toggle pause music from !play',
+    name: 'resume',
+    description: 'Resume music from !play',
     guildonly: true,
     cooldown: 5
 }
@@ -10,6 +10,7 @@ module.exports.run = async (client, message, args) => {
     if (queue.paused) {
       queue.resume()
       return message.channel.send('Resumed the song for you :)')
-    }
-    queue.pause()
+    } else {
+        message.channel.send('The queue is not paused!')
+      }
 }
