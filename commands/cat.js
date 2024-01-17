@@ -1,7 +1,8 @@
 // Initalize
 const Discord = module.require('discord.js');
 const fetch = module.require('superagent');
-const api = "http://aws.random.cat/meow";
+const api = "https://cataas.com/cat?json=true";
+const apiurl = "https://cataas.com/cat/";
 
 module.exports.help = {
     name: 'cat',
@@ -25,11 +26,11 @@ module.exports.run = async(client, message, args) => {
 
     if(!{ body} ) return message.channel.send("Something broke on bots side. Try again.");
 
-    console.log(body.body.file);
+    console.log(body._body._id);
     let cEmbed = new Discord.EmbedBuilder()
     .setAuthor({name: "Dank Cat"})
     .setColor("#9859B6")
-    .setImage(body.body.file)
+    .setImage(apiurl + body._body._id)
     .setTimestamp()
     
     message.channel.send({embeds: [cEmbed]});

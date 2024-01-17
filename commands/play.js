@@ -1,7 +1,7 @@
 const config = require("../config.json");
 module.exports.help = {
     name: 'play',
-    description: 'Play a song from youtube. Downloaded on host machine for later use.',
+    description: 'Play a song from youtube.',
     aliases: ['p'],
     args: true,
     guildonly: true,
