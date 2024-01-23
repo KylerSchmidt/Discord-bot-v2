@@ -17,9 +17,6 @@ client.emotes = config.emoji;
 
 // distube creation
 const { distube, DisTube } = require("distube");
-// const { SpotifyPlugin } = require('@distube/spotify');
-const { SoundCloudPlugin } = require('@distube/soundcloud');
-
 
 // bind DisTube to client
 client.distube = new DisTube(client, {
@@ -27,7 +24,6 @@ client.distube = new DisTube(client, {
     emitNewSongOnly: true,
     emitAddListWhenCreatingQueue: false,
     emitAddSongWhenCreatingQueue: false,
-    plugins: [new SoundCloudPlugin()],
 })
 
 // cooldowns storage.
