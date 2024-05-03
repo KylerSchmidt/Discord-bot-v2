@@ -48,7 +48,7 @@ module.exports.run = async(client, message, args) => {
     if(typeof(Description) == 'undefined') Description = 'no Description';
     if(typeof(Aliases) == 'undefined') Aliases = 'no Aliases';
     if(typeof(Useage) == 'undefined') Useage =''; 
-    if(typeof(Guildonly) == 'undefined') Guildonly = 'Not Specified';
+    if(typeof(Guildonly) == 'undefined') Guildonly = 'No';
     else if(Guildonly) Guildonly = 'Yes'; else Guildonly = 'No';
     if(typeof(CooldownTimer) == 'undefined') CooldownTimer = 'no cooldown';
     if(typeof(Todo) == 'undefined') Todo = 'no current todo list';
@@ -60,7 +60,7 @@ module.exports.run = async(client, message, args) => {
                 {name: 'Description:', value: Description},
                 {name: 'Aliases:', value: Aliases},
                 {name: 'Usage:', value: `${botPrefix}${command.help.name} ${Useage}`},
-                {name: 'Guildonly?:', value: Guildonly},
+                {name: 'Guildonly:', value: Guildonly},
                 {name: 'CooldownTimer:', value: CooldownTimer},
                 {name: 'TODO:', value: Todo},
                 )
