@@ -9,5 +9,6 @@ module.exports.help = {
 module.exports.run = async(client, message, args) => {
     const queue = client.distube.getQueue(message);
     queue.stop();
+    // queue.voice.leave();
     message.channel.send(`${client.emotes.success} | Stopped!`);
 }

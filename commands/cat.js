@@ -26,7 +26,7 @@ module.exports.run = async(client, message, args) => {
 
     if(!{ body} ) return message.channel.send("Something broke on bots side. Try again.");
 
-    console.log(body._body._id);
+    // console.log(body._body._id);
     let cEmbed = new Discord.EmbedBuilder()
     .setAuthor({name: "Dank Cat"})
     .setColor("#9859B6")

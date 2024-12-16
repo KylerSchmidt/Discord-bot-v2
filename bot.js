@@ -18,9 +18,17 @@ client.emotes = config.emoji;
 // distube creation
 const { distube, DisTube } = require("distube");
 
+// build Youtube plugin
+const {YouTubePlugin} = require("@distube/youtube");
+const ytPlugin = new YouTubePlugin({
+    cookies: [
+      // ...
+    ],
+  });
+
 // bind DisTube to client
 client.distube = new DisTube(client, {
-    leaveOnStop: false,
+    plugins: [ytPlugin],
     emitNewSongOnly: true,
     emitAddListWhenCreatingQueue: false,
     emitAddSongWhenCreatingQueue: false,
@@ -118,9 +126,8 @@ client.on("error", async () => {
 })
 
 client.distube
-    .on('error', (channel, e) => {
-        if (channel) channel.send(`${client.emotes.error} | An error encountered: ${e.toString().slice(0, 1974)}`)
-        else console.error(e)
+    .on('error', (e, queue, song) => {
+        queue.textChannel.send(`An error encountered: ${e}`);
     })
     .on("playSong", (queue, song) => {
         let content = JSON.parse(fs.readFileSync(path.resolve(__dirname, './config.json'), 'utf8'));
